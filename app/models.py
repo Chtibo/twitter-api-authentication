@@ -1,7 +1,36 @@
 from datetime import datetime
+from sqlalchemy.schema import ForeignKey
+import uuid
 
-class Tweet:
-    def __init__(self, text):
-        self.id = None
-        self.text = text
-        self.created_at = datetime.now()
+from app import db
+
+class Tweet(db.Model):
+    __tablename__ = "tweets"
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(280))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, ForeignKey('users.id'))
+    user = db.relationship("User", back_populates="tweets")
+
+    def __repr__(self):
+        return f"<Tweet #{self.id}>"
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    license = db.Column(db.String(256))
+    username = db.Column(db.String(80))
+    email = db.Column(db.String(200))
+    api_key = db.Column(db.String(80))
+    tweets = db.relationship('Tweet', back_populates="user")
+
+    def __repr__(self):
+        return f"<User {self.username}>"
+
+    def generate_license(self):
+        if not self.license:
+            self.license = str(uuid.uuid4())
+        return self.license
+
+def generate_license(mapper, connect, self):
+    target.generate_license()
