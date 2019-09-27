@@ -1,6 +1,6 @@
 from flask_restplus import Namespace, Resource, fields
 from flask import abort
-from app.models import Tweet
+from app.models import Tweet, User
 from app import db
 
 api = Namespace('tweets')
@@ -26,6 +26,7 @@ json_new_tweet = api.model('New tweet', {
 @api.route('/<int:id>')
 @api.response(404, 'Tweet not found')
 @api.param('id', 'The tweet unique identifier')
+
 class TweetResource(Resource):
     @api.marshal_with(json_tweet)
     def get(self, id):
@@ -37,6 +38,7 @@ class TweetResource(Resource):
 
     @api.marshal_with(json_tweet, code=200)
     @api.expect(json_new_tweet, validate=True)
+
     def patch(self, id):
         tweet = db.session.query(Tweet).get(id)
         if tweet is None:

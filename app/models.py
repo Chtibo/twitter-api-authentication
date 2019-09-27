@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy.schema import ForeignKey
+import uuid
 
 from app import db
 
@@ -17,6 +18,7 @@ class Tweet(db.Model):
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
+    license = db.Column(db.String(256))
     username = db.Column(db.String(80))
     email = db.Column(db.String(200))
     api_key = db.Column(db.String(80))
@@ -24,3 +26,11 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.username}>"
+
+    def generate_license(self):
+        if not self.license:
+            self.license = str(uuid.uuid4())
+        return self.license
+
+def generate_license(mapper, connect, self):
+    target.generate_license()
